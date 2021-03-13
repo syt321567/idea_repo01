@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">        
+                                         
+
+<mapper namespace="com.iot.dao.ResourceMapper">
+
+
+        <!--查询所有资源-->
+        <select id="findAllResource" resultType="com.iot.domain.ResourceVo">
+            select * from resource
+            <where>
+                <if test="name != null">
+                    and name like  concat('%',#{name},'%')
+                </if>
+                <if test="url != null">
+                    and url = url
+                </if>
+                <if test="categoryId != null">
+                    and category_id = #{categoryId}
+                </if>
+            </where>
+        </select>
+
+    
+    <!--添加资源的信息-->
+    <insert id="saveResource" parameterType="com.iot.domain.Resource">
+        insert into resource  (name,url,category_id,description,created_time,updated_time,created_by,updated_by) values (#{name},#{url},#{categoryId},#{description},#{createdTime},#{updatedTime},#{createdBy},#{updatedBy})
+    </insert>
+    
+    <!--根据id查询资源的信息-->
+    <select id="findResourceById" parameterType="int" resultType="com.iot.domain.Resource">
+        select * from resource where id=#{id};
+    </select>
+    <!--修改资源的信息-->
+
+    <update id="updateResource" parameterType="com.iot.domain.Resource">
+    update  resource set name=#{name},url=#{url},category_id=#{categoryId},description=#{description},updated_time=#{updatedTime},updated_by=#{updatedBy} where id=#{id};
+
+    </update>
+
+
+    <!--根据id删除资源的信息-->
+    <delete id="deleteResource" parameterType="int">
+
+        delete  from resource   where id=#{id}
+
+    </delete>
+    
+    
+
+</mapper>

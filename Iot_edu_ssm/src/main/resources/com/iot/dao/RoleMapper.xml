@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iot.dao.RoleMapper">
+
+    <!--根据角色名字查询角色-->
+    <!--查询所有角色(条件)-->
+    <select id="findAllRole" resultType="com.iot.domain.Role" parameterType="com.iot.domain.Role">
+        SELECT id,
+        CODE,
+        NAME,
+        description,
+        created_time,
+        updated_time,
+        created_by,
+        updated_by
+        FROM roles
+        <where>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+        </where>
+    </select>
+    <!--添加角色的信息-->
+    <insert id="saveRole" parameterType="com.iot.domain.Role">
+        insert roles (name,code,description,created_time,updated_time,created_by,updated_by) values (#{name},#{code},#{description},#{createdTime},
+        #{updatedTime},#{createdBy},#{updatedBy})
+    </insert>
+
+    <!--根据id 查询角色的信息-->
+    <select id="findRoleById" parameterType="int" resultType="com.iot.domain.Role">
+
+        select  *from roles where id=#{id}
+
+    </select>
+    <!--修改角色的信息-->
+
+    <update id="updateRole" parameterType="com.iot.domain.Role">
+
+    update  roles  set  name=#{name},code=#{code},
+    description=#{description},
+    updated_time=#{updatedTime}
+    where id=#{id}
+
+    </update>
+
+
+    <!-- 根据角色的id  删除  角色 菜单 关联表中角色关联的菜单的信息-->
+
+
+    <delete id="deleteRoleContextMenu" parameterType="int">
+
+        delete from role_menu_relation where role_id = #{id}
+
+    </delete>
+
+    <!--关联角色的菜单的信息-->
+
+    <insert id="RoleContextMenu" parameterType="com.iot.domain.Role_menu_relation">
+      insert into role_menu_relation values(null,#{menuId},#{roleId},#{createdTime},#{updatedTime},#{createdBy},#{updatedby})
+    </insert>
+
+
+    <!--根据id删除角色-->
+    <delete id="deleteRole" parameterType="int">
+
+        delete from roles where id =#{id}
+
+    </delete>
+
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.iot.dao.MenuMapper">
+
+    <resultMap id="MenuResult" type="com.iot.domain.Menu">
+
+        <id property="id" column="id"/>
+        <result column="href" property="href"></result>
+        <result column="icon" property="icon"></result>
+        <result column="name" property="name"></result>
+        <result column="parent_id" property="parentId"></result>
+        <result column="description" property="description"></result>
+        <result column="orderNum" property="order_num"></result>
+        <result column="shown" property="shown"></result>
+        <result column="created_time" property="createdTime"></result>
+        <result column="updated_time" property="updatedTime"></result>
+        <result column="created_by" property="createdBy"></result>
+        <result column="updated_by" property="updatedBy"></result>
+
+        <collection property="menuList" select="findSubMenuListByPid" column="id"
+                    ofType="com.iot.domain.Menu"></collection>
+
+    </resultMap>
+
+    <!--查找分级 菜单-->
+    <select id="findSubMenuListByPid" parameterType="int" resultMap="MenuResult">
+
+            select * from menu where parent_id = #{pid}  
+
+    </select>
+
+    <!--根据id查询角色关联的菜单的信息-->
+    <select id="findMenuByRoleId" parameterType="int" resultType="int">
+
+     SELECT
+            m.id
+            FROM
+            roles AS r
+            JOIN role_menu_relation AS rm
+            ON r.id = rm.role_id
+            INNER JOIN
+            menu m
+            ON
+            rm.menu_id=m.id
+            where r.id=#{id}
+
+    </select>
+
+
+    <!--查询菜单的所有的信息-->
+    <select id="findAllMenu" resultType="com.iot.domain.Menu">
+      select  *from menu
+    </select>
+
+
+<!--根据id查询菜单的信息-->
+    <select id="findMenuById" parameterType="int" resultType="com.iot.domain.Menu">
+
+        select *from menu where id=#{id}
+
+    </select>
+
+    <!--保存菜单的信息-->
+    <insert id="saveMenu" parameterType="com.iot.domain.Menu">
+
+        insert into menu (description,href,icon,name,order_num,parent_id,shown,level,created_time,updated_time,created_by,updated_by)values (#{description},#{href},#{icon},#{name},#{orderNum},#{parentId},#{shown},#{level},#{createdTime},#{updatedTime},#{createdBy},#{updatedBy})
+
+    </insert>
+
+
+    <!--修改菜单的信息-->
+    <update id="updateMenu" parameterType="com.iot.domain.Menu">
+        update menu set description=#{description},href=#{href},icon=#{icon},name=#{name},order_num=#{orderNum},parent_id=#{parentId},shown=#{shown},level=#{level},created_time=#{createdTime},updated_time=#{updatedTime},created_by=#{createdBy},updated_by=#{updatedBy}  where id=#{id}
+    </update>
+
+
+
+
+</mapper>

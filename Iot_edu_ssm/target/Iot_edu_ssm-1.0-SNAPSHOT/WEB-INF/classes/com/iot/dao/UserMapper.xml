@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.iot.dao.UserMapper">
+    <!--分页查询所有用户的列表-->
+    <select id="findAllUserByPage" parameterType="com.iot.domain.UserVO" resultType="com.iot.domain.User">
+
+        SELECT id,
+        NAME,
+        portrait,
+        phone,
+        PASSWORD,
+        STATUS,
+        create_time
+        FROM USER
+        <where>
+            <if test="true">
+                and is_del !=1
+            </if>
+
+            <if test="username!=null">
+                and name=#{username}
+            </if>
+
+            <if test="startCreateTime != null and endCreateTime != null">
+
+                and create_time BETWEEN #{startCreateTime} AND #{endCreateTime}
+
+            </if>
+
+        </where>
+    </select>
+
+
+    <!--修改用户的状态-->
+    <update id="updateUserStatus" parameterType="com.iot.domain.User">
+
+        update  user set status =#{status}, update_time=#{update_time}  where id=#{id}
+
+    </update>
+
+
+    <!--修改密码-->
+    <update id="updateUserPassword" parameterType="com.iot.domain.UserVO">
+        update user set password=#{password} where phone=#{phone}
+    </update>
+
+    <!-- 用户登陆 -->
+    <select id="login" parameterType="com.iot.domain.User"
+            resultType="com.iot.domain.User">
+            select * from user where phone = #{phone}
+    </select>
+
+
+    <!--根据userId  清空角色表的中的user role的关联-->
+    <delete id="deleteUserContextRole" parameterType="int">
+
+        delete  from user_role_relation where user_id=#{id}
+
+
+    </delete>
+
+    <!--根据id添加到用户和的角色的关系表的中的数据-->
+    <insert id="userContextRole" parameterType="com.iot.domain.User_Role_relation">
+
+        insert into user_role_relation values(null,#{userId},#{roleId},#{createdTime},#{updatedTime},#{createdBy},#{updatedby})
+
+    </insert>
+
+
+    <!--根据id 查询用户的角色的信息-->
+    <select id="findUserRelationRoleById" parameterType="int" resultType="com.iot.domain.Role">
+
+        SELECT
+            r.id,
+            r.code,
+            r.name,
+            r.description
+            FROM
+            roles r
+            INNER JOIN user_role_relation ur ON r.id = ur.role_id
+            INNER JOIN USER u ON u.id = ur.user_id
+        WHERE
+            u.id = #{id}
+    </select>
+
+
+    <!--    * 根据角色id,查询角色拥有的顶级菜单信息 *-->
+
+    <select id="findParentMenuByRoleId" parameterType="java.util.List" resultType="com.iot.domain.Menu">
+        -- 根据角色的id查询的 顶级的菜单
+        SELECT DISTINCT
+        m.*
+        FROM
+        roles r
+        INNER JOIN role_menu_relation rm ON r.id = rm.role_id
+        INNER JOIN menu m ON m.id = rm.menu_id
+        WHERE
+        parent_id =- 1
+        AND r.id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY m.id
+
+    </select>
+
+    <!-- 根据PID 查找子菜单 -->
+
+    <select id="findSubMenuByPid" parameterType="int" resultType="com.iot.domain.Menu">
+
+       select * from menu where parent_id = #{pid}
+    </select>
+
+    <!-- 获取用户拥有的角色id的集合获取角色对应的资源权限 -->
+    <select id="findResourceByRoleId" parameterType="java.util.List" resultType="com.iot.domain.Resource">
+        SELECT DISTINCT
+        rr.*
+        FROM
+        roles r
+        INNER JOIN role_resource_relation rrr ON r.id = rrr.role_id
+        INNER JOIN resource rr ON rr.id = rrr.resource_id
+        WHERE
+        r.id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY rr.id;
+    </select>
+
+
+</mapper>
